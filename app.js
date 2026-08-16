@@ -1,59 +1,27 @@
-const KEY="sirohiFarmDataV1";
-let data=JSON.parse(localStorage.getItem(KEY)||'{"goats":[],"health":[],"breeding":[],"sales":[]}');
-let deferredPrompt=null;
-window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;document.getElementById("installBtn").classList.remove("hidden")});
-document.getElementById("installBtn").onclick=async()=>{if(deferredPrompt){deferredPrompt.prompt();deferredPrompt=null}};
-function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}
-function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
-function showPage(id){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");render()}
-function openModal(html){document.getElementById("modalContent").innerHTML=html;document.getElementById("modal").classList.remove("hidden")}
-function closeModal(){document.getElementById("modal").classList.add("hidden")}
-function form(title,fields,onsave){openModal(`<h2>${title}</h2>${fields.map(f=>`<div class="formrow"><label>${f.label}</label>${f.html}</div>`).join("")}<div class="form-actions"><button onclick="${onsave}">Save</button><button class="secondary" style="background:#eee;color:#222" onclick="closeModal()">Cancel</button></div>`)}
-function openGoatForm(){
- form("Add Goat",[
- {label:"Tag / ID",html:'<input id="fTag" placeholder="e.g. SG-001">'},
- {label:"Name",html:'<input id="fName" placeholder="Optional">'},
- {label:"Type",html:'<select id="fType"><option>Buck</option><option>Doe</option><option>Kid</option></select>'},
- {label:"Breed",html:'<input id="fBreed" value="Sirohi">'},
- {label:"Date of Birth",html:'<input id="fDob" type="date">'},
- {label:"Weight (kg)",html:'<input id="fWeight" type="number" step="0.1">'},
- {label:"Notes",html:'<textarea id="fNotes" rows="3"></textarea>'}
- ],"saveGoat()");
-}
-function saveGoat(){const tag=document.getElementById("fTag").value.trim();if(!tag)return alert("Please enter Goat Tag / ID");data.goats.push({id:Date.now(),tag,name:document.getElementById("fName").value,type:document.getElementById("fType").value,breed:document.getElementById("fBreed").value,dob:document.getElementById("fDob").value,weight:document.getElementById("fWeight").value,notes:document.getElementById("fNotes").value});closeModal();save()}
-function del(type,id){if(confirm("Delete this record?")){data[type]=data[type].filter(x=>x.id!==id);save()}}
-function openHealthForm(){form("Add Health Record",[
-{label:"Goat Tag / ID",html:'<input id="hTag" placeholder="SG-001">'},
-{label:"Date",html:'<input id="hDate" type="date" value="'+new Date().toISOString().slice(0,10)+'">'},
-{label:"Record Type",html:'<select id="hType"><option>Vaccination</option><option>Deworming</option><option>Medicine</option><option>Illness</option><option>Check-up</option></select>'},
-{label:"Details",html:'<textarea id="hDetails" rows="3" placeholder="Vaccine/medicine, dose, remarks"></textarea>'}
-],"saveHealth()")}
-function saveHealth(){data.health.push({id:Date.now(),tag:hTag.value,date:hDate.value,type:hType.value,details:hDetails.value});closeModal();save()}
-function openBreedingForm(){form("Add Breeding Record",[
-{label:"Doe Tag / ID",html:'<input id="bDoe" placeholder="Doe ID">'},
-{label:"Buck Tag / ID",html:'<input id="bBuck" placeholder="Buck ID">'},
-{label:"Mating Date",html:'<input id="bDate" type="date">'},
-{label:"Expected Kidding Date",html:'<input id="bExpected" type="date">'},
-{label:"Status",html:'<select id="bStatus"><option>Planned</option><option>Mated</option><option>Pregnant</option><option>Kidded</option></select>'},
-{label:"Notes",html:'<textarea id="bNotes" rows="3"></textarea>'}
-],"saveBreeding()")}
-function saveBreeding(){data.breeding.push({id:Date.now(),doe:bDoe.value,buck:bBuck.value,date:bDate.value,expected:bExpected.value,status:bStatus.value,notes:bNotes.value});closeModal();save()}
-function openSaleForm(){form("Add Sale",[
-{label:"Goat Tag / ID",html:'<input id="sTag" placeholder="SG-001">'},
-{label:"Date",html:'<input id="sDate" type="date" value="'+new Date().toISOString().slice(0,10)+'">'},
-{label:"Customer",html:'<input id="sCustomer">'},
-{label:"Amount (₹)",html:'<input id="sAmount" type="number">'},
-{label:"Notes",html:'<textarea id="sNotes" rows="3"></textarea>'}
-],"saveSale()")}
-function saveSale(){data.sales.push({id:Date.now(),tag:sTag.value,date:sDate.value,customer:sCustomer.value,amount:sAmount.value,notes:sNotes.value});closeModal();save()}
-function render(){
- totalGoats.textContent=data.goats.length;bucks.textContent=data.goats.filter(x=>x.type==="Buck").length;does.textContent=data.goats.filter(x=>x.type==="Doe").length;kids.textContent=data.goats.filter(x=>x.type==="Kid").length;
- goatList.innerHTML=data.goats.length?data.goats.map(x=>`<div class="item"><strong>${esc(x.tag)}</strong><span class="pill">${esc(x.type)}</span><div class="meta">${esc(x.name||"")} • ${esc(x.breed||"Sirohi")} • ${x.weight?esc(x.weight)+" kg":"Weight not entered"}<br>DOB: ${esc(x.dob||"-")}<br>${esc(x.notes||"")}</div><button class="danger" style="margin-top:9px" onclick="del('goats',${x.id})">Delete</button></div>`).join(""):'<div class="empty">No goats added yet.</div>';
- healthList.innerHTML=data.health.length?data.health.slice().reverse().map(x=>`<div class="item"><strong>${esc(x.tag)}</strong><span class="pill">${esc(x.type)}</span><div class="meta">${esc(x.date)}<br>${esc(x.details||"")}</div><button class="danger" style="margin-top:9px" onclick="del('health',${x.id})">Delete</button></div>`).join(""):'<div class="empty">No health records yet.</div>';
- breedingList.innerHTML=data.breeding.length?data.breeding.slice().reverse().map(x=>`<div class="item"><strong>${esc(x.doe)}</strong> × ${esc(x.buck)} <span class="pill">${esc(x.status)}</span><div class="meta">Mating: ${esc(x.date||"-")}<br>Expected kidding: ${esc(x.expected||"-")}<br>${esc(x.notes||"")}</div><button class="danger" style="margin-top:9px" onclick="del('breeding',${x.id})">Delete</button></div>`).join(""):'<div class="empty">No breeding records yet.</div>';
- salesList.innerHTML=data.sales.length?data.sales.slice().reverse().map(x=>`<div class="item"><strong>${esc(x.tag)}</strong><span class="pill">Sale</span><div class="meta">${esc(x.date)} • Customer: ${esc(x.customer||"-")}<br>Amount: ₹${esc(x.amount||"0")}<br>${esc(x.notes||"")}</div><button class="danger" style="margin-top:9px" onclick="del('sales',${x.id})">Delete</button></div>`).join(""):'<div class="empty">No sales yet.</div>';
-}
-function exportData(){const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="sirohi-goat-farm-backup.json";a.click();URL.revokeObjectURL(a.href)}
-function clearData(){if(confirm("Delete ALL farm data from this device?")){data={goats:[],health:[],breeding:[],sales:[]};save()}}
-render();
-if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");
+const K="sirohiFarmV2";let d=JSON.parse(localStorage.getItem(K)||'{"goats":[],"health":[],"breeding":[],"sales":[],"profile":{"name":"Sirohi Goat Farm & Breeding Setup","owner":"","phone":""}}');
+const $=id=>document.getElementById(id);const today=()=>new Date().toISOString().slice(0,10);
+function save(){localStorage.setItem(K,JSON.stringify(d));render()}function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function page(id){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));$(id).classList.add("active");render()}
+function modal(html){$("form").innerHTML=html;$("modal").classList.remove("hidden")}function closeModal(){$("modal").classList.add("hidden")}
+function fld(label,html){return `<label class="formlabel">${label}</label>${html}`}
+function openGoat(){modal(`<h2>Add Goat</h2>${fld("Tag / ID",'<input id="gtag" placeholder="SG-001">')}${fld("Name",'<input id="gname">')}${fld("Type",'<select id="gtype"><option>Doe</option><option>Buck</option><option>Kid</option></select>')}${fld("Breed",'<input id="gbreed" value="Sirohi">')}${fld("Date of Birth",'<input id="gdob" type="date">')}${fld("Weight (kg)",'<input id="gweight" type="number" step=".1">')}${fld("Purchase Price (₹)",'<input id="gpurchase" type="number">')}${fld("Notes",'<textarea id="gnote" rows="3"></textarea>')}<div class="actions"><button onclick="addGoat()">Save</button><button class="ghost" onclick="closeModal()">Cancel</button></div>`)}
+function addGoat(){if(!gtag.value.trim())return alert("Enter Tag / ID");d.goats.push({id:Date.now(),tag:gtag.value,name:gname.value,type:gtype.value,breed:gbreed.value,dob:gdob.value,weight:gweight.value,purchase:gpurchase.value,note:gnote.value});closeModal();save()}
+function openHealth(){modal(`<h2>Add Health Record</h2>${fld("Goat Tag",'<input id="htag">')}${fld("Date",`<input id="hdate" type="date" value="${today()}">`)}${fld("Type",'<select id="htype"><option>Vaccination</option><option>Deworming</option><option>Medicine</option><option>Illness</option><option>Check-up</option></select>')}${fld("Vaccine / Medicine / Details",'<textarea id="hdetail" rows="3"></textarea>')}<div class="actions"><button onclick="addHealth()">Save</button><button class="ghost" onclick="closeModal()">Cancel</button></div>`)}
+function addHealth(){d.health.push({id:Date.now(),tag:htag.value,date:hdate.value,type:htype.value,detail:hdetail.value});closeModal();save()}
+function openBreed(){modal(`<h2>Add Breeding Record</h2>${fld("Doe Tag",'<input id="bdoe">')}${fld("Buck Tag",'<input id="bbuck">')}${fld("Mating Date",'<input id="bdate" type="date">')}${fld("Expected Kidding",'<input id="bexp" type="date">')}${fld("Status",'<select id="bstatus"><option>Planned</option><option>Mated</option><option>Pregnant</option><option>Kidded</option></select>')}${fld("Notes",'<textarea id="bnote" rows="3"></textarea>')}<div class="actions"><button onclick="addBreed()">Save</button><button class="ghost" onclick="closeModal()">Cancel</button></div>`)}
+function addBreed(){d.breeding.push({id:Date.now(),doe:bdoe.value,buck:bbuck.value,date:bdate.value,expected:bexp.value,status:bstatus.value,note:bnote.value});closeModal();save()}
+function openSale(){modal(`<h2>Add Sale</h2>${fld("Goat Tag",'<input id="stag">')}${fld("Date",`<input id="sdate" type="date" value="${today()}">`)}${fld("Customer",'<input id="scustomer">')}${fld("Sale Amount (₹)",'<input id="samount" type="number">')}${fld("Payment Status",'<select id="spay"><option>Paid</option><option>Pending</option><option>Partial</option></select>')}${fld("Notes",'<textarea id="snote" rows="3"></textarea>')}<div class="actions"><button onclick="addSale()">Save</button><button class="ghost" onclick="closeModal()">Cancel</button></div>`)}
+function addSale(){d.sales.push({id:Date.now(),tag:stag.value,date:sdate.value,customer:scustomer.value,amount:samount.value,payment:spay.value,note:snote.value});closeModal();save()}
+function del(type,id){if(confirm("Delete record?")){d[type]=d[type].filter(x=>x.id!==id);save()}}
+function renderGoats(){let q=($("goatSearch")?.value||"").toLowerCase();let a=d.goats.filter(x=>(x.tag+x.name+x.breed).toLowerCase().includes(q));$("goatList").innerHTML=a.length?a.map(x=>`<div class="item"><strong>${esc(x.tag)}</strong><span class="pill">${esc(x.type)}</span><div class="meta">${esc(x.name||"")} • ${esc(x.breed)} • ${x.weight?esc(x.weight)+" kg":"No weight"}<br>DOB: ${esc(x.dob||"-")} • Purchase: ₹${esc(x.purchase||"0")}<br>${esc(x.note||"")}</div><button class="danger" onclick="del('goats',${x.id})">Delete</button></div>`).join(""):'<div class="empty">No goats found.</div>'}
+function render(){let pregnant=d.breeding.filter(x=>x.status==="Pregnant").length;$("nGoats").textContent=d.goats.length;$("nDoes").textContent=d.goats.filter(x=>x.type==="Doe").length;$("nBucks").textContent=d.goats.filter(x=>x.type==="Buck").length;$("nPreg").textContent=pregnant;
+$("snapshot").innerHTML=`<div>📅 Today: <b>${today()}</b></div><div>❤️ Pregnant does: <b>${pregnant}</b></div><div>💰 Sales recorded: <b>${d.sales.length}</b></div>`;renderGoats();
+$("healthList").innerHTML=d.health.length?d.health.slice().reverse().map(x=>`<div class="item"><strong>${esc(x.tag||"Farm")}</strong><span class="pill">${esc(x.type)}</span><div class="meta">${esc(x.date)}<br>${esc(x.detail)}</div><button class="danger" onclick="del('health',${x.id})">Delete</button></div>`).join(""):'<div class="empty">No health records.</div>';
+$("breedList").innerHTML=d.breeding.length?d.breeding.slice().reverse().map(x=>`<div class="item"><strong>${esc(x.doe)}</strong> × ${esc(x.buck)} <span class="pill">${esc(x.status)}</span><div class="meta">Mating: ${esc(x.date||"-")}<br>Expected kidding: ${esc(x.expected||"-")}<br>${esc(x.note||"")}</div><button class="danger" onclick="del('breeding',${x.id})">Delete</button></div>`).join(""):'<div class="empty">No breeding records.</div>';
+$("saleList").innerHTML=d.sales.length?d.sales.slice().reverse().map(x=>`<div class="item"><strong>${esc(x.tag)}</strong><span class="pill">${esc(x.payment)}</span><div class="meta">${esc(x.date)} • ${esc(x.customer||"-")}<br>₹${esc(x.amount||"0")}<br>${esc(x.note||"")}</div><button class="danger" onclick="del('sales',${x.id})">Delete</button></div>`).join(""):'<div class="empty">No sales recorded.</div>';
+$("farmName").value=d.profile.name;$("owner").value=d.profile.owner;$("phone").value=d.profile.phone}
+function saveProfile(){d.profile={name:$("farmName").value,owner:$("owner").value,phone:$("phone").value};save();alert("Profile saved")}
+function backup(){let blob=new Blob([JSON.stringify(d,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="sirohi-farm-backup.json";a.click()}
+function restore(input){let f=input.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{d=JSON.parse(r.result);save();alert("Backup restored")}catch(e){alert("Invalid backup file")}};r.readAsText(f)}
+function resetAll(){if(confirm("Delete all farm data?")){d={goats:[],health:[],breeding:[],sales:[],profile:{name:"Sirohi Goat Farm & Breeding Setup",owner:"",phone:""}};save()}}
+let dp=null;addEventListener("beforeinstallprompt",e=>{e.preventDefault();dp=e;$("install").classList.remove("hidden")});$("install").onclick=async()=>{if(dp){dp.prompt();dp=null}};if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js");render();
