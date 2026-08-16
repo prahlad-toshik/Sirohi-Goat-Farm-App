@@ -1,0 +1,26 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#176b3a"><link rel="manifest" href="manifest.json"><link rel="stylesheet" href="style.css">
+<title>Sirohi Goat Farm</title></head><body>
+<header><div><b>🐐 Sirohi Goat Farm</b><small>Farm & Breeding Setup</small></div><button id="install" class="ghost hidden">Install</button></header>
+<main>
+<section id="home" class="page active"><h1>Farm Dashboard</h1><div class="cards">
+<div><span>Total Goats</span><b id="nGoats">0</b></div><div><span>Does</span><b id="nDoes">0</b></div><div><span>Bucks</span><b id="nBucks">0</b></div><div><span>Pregnant</span><b id="nPreg">0</b></div></div>
+<div class="panel"><h2>Farm Snapshot</h2><div id="snapshot"></div></div>
+<div class="panel"><h2>Quick Actions</h2><div class="grid2"><button onclick="openGoat()">＋ Goat</button><button onclick="openHealth()">💉 Health</button><button onclick="openBreed()">❤️ Breeding</button><button onclick="openSale()">💰 Sale</button></div></div></section>
+
+<section id="goats" class="page"><div class="head"><h1>Goats</h1><button onclick="openGoat()">＋ Add</button></div><input class="search" id="goatSearch" placeholder="Search tag, name or breed" oninput="renderGoats()"><div id="goatList"></div></section>
+
+<section id="health" class="page"><div class="head"><h1>Health</h1><button onclick="openHealth()">＋ Add</button></div><div id="healthList"></div></section>
+
+<section id="breeding" class="page"><div class="head"><h1>Breeding</h1><button onclick="openBreed()">＋ Add</button></div><div id="breedList"></div></section>
+
+<section id="sales" class="page"><div class="head"><h1>Sales</h1><button onclick="openSale()">＋ Add</button></div><div id="saleList"></div></section>
+
+<section id="more" class="page"><h1>More</h1>
+<div class="panel"><h2>Farm Profile</h2><input id="farmName" placeholder="Farm name"><input id="owner" placeholder="Owner name"><input id="phone" placeholder="Phone / WhatsApp"><button onclick="saveProfile()">Save Profile</button></div>
+<div class="panel"><h2>Backup</h2><button onclick="backup()">Download Backup</button><label class="upload">Restore Backup<input type="file" accept=".json" onchange="restore(this)"></label><button class="danger" onclick="resetAll()">Delete All Data</button></div>
+</section></main>
+<nav><button onclick="page('home')">🏠<small>Home</small></button><button onclick="page('goats')">🐐<small>Goats</small></button><button onclick="page('health')">💉<small>Health</small></button><button onclick="page('breeding')">❤️<small>Breeding</small></button><button onclick="page('more')">⚙️<small>More</small></button></nav>
+<div id="modal" class="modal hidden"><div class="modalbox"><button class="x" onclick="closeModal()">×</button><div id="form"></div></div></div>
+<script src="app.js"></script></body></html>
