@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#176b3a">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+  <title>Sirohi Goat Farm</title>
+</head>
+<body>
+<header class="topbar">
+  <div><div class="brand">🐐 Sirohi Goat Farm</div><div class="sub">Farm & Breeding Setup</div></div>
+  <button id="installBtn" class="secondary hidden">Install</button>
+</header>
+
+<main>
+<section id="dashboard" class="page active">
+  <h1>Farm Dashboard</h1>
+  <div class="cards">
+    <div class="card"><span>Total Goats</span><b id="totalGoats">0</b></div>
+    <div class="card"><span>Bucks</span><b id="bucks">0</b></div>
+    <div class="card"><span>Does</span><b id="does">0</b></div>
+    <div class="card"><span>Kids</span><b id="kids">0</b></div>
+  </div>
+  <div class="panel">
+    <h2>Quick Actions</h2>
+    <div class="actions">
+      <button onclick="showPage('goats')">🐐 Add / View Goats</button>
+      <button onclick="showPage('health')">💉 Health Records</button>
+      <button onclick="showPage('breeding')">❤️ Breeding</button>
+      <button onclick="showPage('sales')">💰 Sales</button>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Farm Information</h2>
+    <p><b>Sirohi Goat Farm & Breeding Setup</b></p>
+    <p>Pure Sirohi • Trusted Breeding</p>
+    <p class="muted">Data is stored locally on this device in this first version.</p>
+  </div>
+</section>
+
+<section id="goats" class="page">
+  <div class="section-head"><h1>Goat Records</h1><button onclick="openGoatForm()">＋ Add Goat</button></div>
+  <div id="goatList"></div>
+</section>
+
+<section id="health" class="page">
+  <div class="section-head"><h1>Health Records</h1><button onclick="openHealthForm()">＋ Add Record</button></div>
+  <div id="healthList"></div>
+</section>
+
+<section id="breeding" class="page">
+  <div class="section-head"><h1>Breeding Records</h1><button onclick="openBreedingForm()">＋ Add Record</button></div>
+  <div id="breedingList"></div>
+</section>
+
+<section id="sales" class="page">
+  <div class="section-head"><h1>Purchase & Sales</h1><button onclick="openSaleForm()">＋ Add Sale</button></div>
+  <div id="salesList"></div>
+</section>
+
+<section id="settings" class="page">
+  <h1>Settings</h1>
+  <div class="panel">
+    <h2>Backup</h2>
+    <button onclick="exportData()">Download Backup</button>
+    <button class="danger" onclick="clearData()">Delete All Data</button>
+    <p class="muted">Backup creates a JSON file containing your farm records.</p>
+  </div>
+</section>
+</main>
+
+<nav class="bottomnav">
+  <button onclick="showPage('dashboard')">🏠<small>Home</small></button>
+  <button onclick="showPage('goats')">🐐<small>Goats</small></button>
+  <button onclick="showPage('health')">💉<small>Health</small></button>
+  <button onclick="showPage('breeding')">❤️<small>Breeding</small></button>
+  <button onclick="showPage('settings')">⚙️<small>More</small></button>
+</nav>
+
+<div id="modal" class="modal hidden">
+  <div class="modalbox">
+    <button class="close" onclick="closeModal()">×</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
